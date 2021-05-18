@@ -1,6 +1,7 @@
 <template>
-  <div id="app">
-    
+  <div id="app">    
+      <Header></Header>
+      <Content></Content>
   </div>
 </template>
 
@@ -16,5 +17,13 @@ export default {
 </script>
 
 <style>
+  @import "nullstyles";
+  @font-face {
+    font-family: "Lato-Regular";
+    src: url("./assets/fonts/Lato-Regular.ttf");
+  }
 
+  body{
+    font-family: "Lato-Regular";
+}
 </style>
