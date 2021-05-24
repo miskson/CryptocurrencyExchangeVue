@@ -5,36 +5,38 @@
                 <div class="exchange-window__inputs">
                     <div class="exchange-window__inputs-wrapper">
                         <div class="exchange-window__from-inputs">
-                            <h2 class="exchange-window__from-title">Sum in <span id="fromCurrencyType"></span>:</h2>
-                            <select class="exchange-window__from-currency-select" id="fromcurrency">
-                                <option value="UAH">UAH</option>
-                                <option value="EUR">EUR</option>
-                                <option value="BTC">BTC</option>
-                                <option value="ETH">ETH</option>
+
+                            <h2 class="exchange-window__from-title">Sell: {{fromCurrency}}</h2>
+                            <select class="exchange-window__from-currency-select" v-model="fromCurrency">
+                                <option v-for="currency in currencies" v-bind:value="currency">{{currency}}</option>
                             </select>
-                            <input type="text" id="frominput" placeholder="Sell">
+                            <input type="number" placeholder="to Sell" v-model="amount">
+                            
                         </div>
 
-                        <img class = "exchange-window__img" src="../assets/img/sync64.png" alt="image">
+                        <img class = "exchange-window__img" src="../assets/img/sync64.png" alt="<- exchange ->">
 
                         <div class="exchange-window__to-inputs">
-                            <h2 class="exchange-window__to-title">Sum in <span id="toCurrencyType">BTC</span>:</h2>
-                            <select class="exchange-window__to-currency-select" name="tocurrency" id="tocurrency">
-                                <option value="UAH">UAH</option>
-                                <option value="EUR">EUR</option>
-                                <option value="BTC">BTC</option>
-                                <option value="ETH">ETH</option>
+
+                            <h2 class="exchange-window__to-title">Buy: {{toCurrency}}</h2>
+                            <select class="exchange-window__to-currency-select" v-model="toCurrency">
+                                <option v-for="currency in currencies" v-bind:value="currency">{{currency}}</option>
                             </select>
-                            <input type="text" id="toinput" placeholder="Get">
+                            <input type="number" readonly placeholder="to Buy" v-model="toUsd" id="smh">
+
                         </div>
                     </div>
                 </div>
-                <div class="exchange-window__button"><button id="exchangeButton">Exchange</button></div>
+
+                <div class="exchange-window__button">
+                    <button  v-bind:disabled="isButtonDisabled">Exchange</button>
+                </div>
+
                 <div class="exchange-window__currency">
                     <h3>Currency:</h3>
                     <p>1BTC = 2 378 UAH</p>
                     <p>1ETH = 587 EUR</p>
-                    <p>1EUR = 340 UAH</p>
+                    <p>1EUR = 34 UAH</p>
                 </div>
                 <div class="exchange-window__reserve">
                     <h3>Reserve:</h3>
@@ -50,11 +52,63 @@
 
 <!--SCRIPTS TO BE ADDED HERE-->
 <script>
+export default {
+    data() {
+        return {
+            amount: 0,
+            isButtonDisabled: true,
+            currencies: ['UAH','USD','EUR','BTC', 'ETH'],
+            fromCurrency: 'UAH',
+            toCurrency: 'USD'
+        }
+    },
 
+    methods: {
+        disableButton: function () {
+            this.isButtonDisabled = true;
+            console.log("button disabled");
+        },
+
+        enableButton: function () {
+            this.isButtonDisabled = false;
+            console.log("button enabled");
+        },
+    },
+
+    computed: {
+
+        validteInput: function () {
+            if (this.amount <= 0) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+
+        toUsd: function () {
+            if(this.validteInput) {
+                console.log("VALID INPUT");
+                this.enableButton();
+                return this.amount * 28;
+            } else {
+                this.disableButton();
+                console.log("INVALID INPUT");
+            }
+        },
+
+    }
+}
 </script>
 
 
+
 <style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
     .wrapper {
         border: 1px solid white;
         min-width: 100%;
