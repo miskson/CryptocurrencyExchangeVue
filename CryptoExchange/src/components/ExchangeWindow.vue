@@ -22,7 +22,7 @@
                             <select class="exchange-window__to-currency-select" v-model="toCurrency">
                                 <option v-for="currency in currencies" v-bind:value="currency">{{currency}}</option>
                             </select>
-                            <input type="number" readonly placeholder="to Buy" v-model="toUsd" id="smh">
+                            <input type="number" readonly placeholder="to Buy" v-model="onInput" id="smh">
 
                         </div>
                     </div>
@@ -50,7 +50,6 @@
 </template>
 
 
-<!--SCRIPTS TO BE ADDED HERE-->
 <script>
 export default {
     data() {
@@ -59,7 +58,42 @@ export default {
             isButtonDisabled: true,
             currencies: ['UAH','USD','EUR','BTC', 'ETH'],
             fromCurrency: 'UAH',
-            toCurrency: 'USD'
+            toCurrency: 'USD',
+
+            UAH: {
+                toUsd: 27.46,
+                toEur: 34,
+                toEth: 71518.75,
+                toBtc: 1072776.08
+            },
+
+            USD: {
+                toEur: 1.22,
+                toUah: 0.03641,
+                toEth: 2607.04,
+                toBtc: 39070.94
+            },
+
+            EUR: {
+                toUsd: 0.82,
+                toUah: 0.03,
+                toEth: 2101.09,
+                toBtc: 31478.89
+            },
+
+            ETH: {
+                toUsd: 2566.83,
+                toEur: 2101.09,
+                toUah: 71518.75,
+                toBtc: 0.07
+            },
+
+            BTC: {
+                toUsd: 38456.7,
+                toEur: 31478.89,
+                toUah: 1055910.82,
+                toEth: 14.98,
+            },
         }
     },
 
@@ -73,6 +107,81 @@ export default {
             this.isButtonDisabled = false;
             console.log("button enabled");
         },
+
+        toUsd: function () {
+            if (this.fromCurrency === "UAH") {
+                return (this.amount / (this.UAH.toUsd)).toFixed(2);
+            }
+            if (this.fromCurrency === "EUR") {
+                return (this.amount / (this.EUR.toUsd)).toFixed(2);
+            }
+            if (this.fromCurrency === "ETH") {
+                return (this.amount * (this.ETH.toUsd)).toFixed(2);
+            }
+            if (this.fromCurrency === "BTC") {
+                return (this.amount * (this.BTC.toUsd)).toFixed(2);
+            }
+        },
+
+        toEur: function () {
+           if (this.fromCurrency === "UAH") {
+                return (this.amount / (this.UAH.toEur)).toFixed(2);
+            }
+            if (this.fromCurrency === "USD") {
+                return (this.amount / (this.USD.toEur)).toFixed(2);
+            }
+            if (this.fromCurrency === "ETH") {
+                return (this.amount * (this.ETH.toEur)).toFixed(2);
+            }
+            if (this.fromCurrency === "BTC") {
+                return (this.amount * (this.BTC.toEur)).toFixed(2);
+            }
+        },
+
+        toBtc: function () {
+           if (this.fromCurrency === "UAH") {
+                return (this.amount / (this.UAH.toBtc));
+            }
+            if (this.fromCurrency === "USD") {
+                return (this.amount / (this.USD.toBtc));
+            }
+            if (this.fromCurrency === "ETH") {
+                return (this.amount * (this.ETH.toBtc));
+            }
+            if (this.fromCurrency === "EUR") {
+                return (this.amount / (this.EUR.toBtc));
+            }
+        },
+
+        toEth: function () {
+           if (this.fromCurrency === "UAH") {
+                return (this.amount / (this.UAH.toEth));
+            }
+            if (this.fromCurrency === "USD") {
+                return (this.amount / (this.USD.toEth));
+            }
+            if (this.fromCurrency === "BTC") {
+                return (this.amount * (this.BTC.toEth));
+            }
+            if (this.fromCurrency === "EUR") {
+                return (this.amount / (this.EUR.toEth));
+            }
+        },
+
+        toUah: function () {
+           if (this.fromCurrency === "ETH") {
+                return (this.amount * (this.ETH.toUah));
+            }
+            if (this.fromCurrency === "USD") {
+                return (this.amount / (this.USD.toUah)).toFixed(2);
+            }
+            if (this.fromCurrency === "BTC") {
+                return (this.amount * (this.BTC.toUah));
+            }
+            if (this.fromCurrency === "EUR") {
+                return (this.amount / (this.EUR.toUah)).toFixed(2);
+            }
+        }
     },
 
     computed: {
@@ -85,17 +194,38 @@ export default {
             }
         },
 
-        toUsd: function () {
+        onInput: function () {
             if(this.validteInput) {
                 console.log("VALID INPUT");
                 this.enableButton();
-                return this.amount * 28;
+                return this.exchanger;
             } else {
                 this.disableButton();
                 console.log("INVALID INPUT");
             }
         },
 
+        exchanger: function () {
+            if (this.toCurrency === this.fromCurrency) {
+                this.disableButton();
+                return this.amount * 1;
+            }
+            if (this.toCurrency === "USD") {
+                return this.toUsd();
+            }
+            if (this.toCurrency === "EUR") {
+                return this.toEur();
+            }
+            if (this.toCurrency === "BTC") {
+                return this.toBtc();
+            }
+            if (this.toCurrency === "ETH") {
+                return this.toEth();
+            }
+            if (this.toCurrency === "UAH") {
+                return this.toUah();
+            }
+        }
     }
 }
 </script>
