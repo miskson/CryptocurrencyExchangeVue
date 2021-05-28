@@ -4,14 +4,14 @@
                 <h2 class="exchange-window__title">Exchange:</h2>
                 <div class="exchange-window__inputs">
                     <div class="exchange-window__inputs-wrapper">
-                        <div class="exchange-window__from-inputs">
+                        <div class="exchange-window__from-inputs" v-bind:class="{blocked__inputs: smallerr.active}">
 
                             <h2 class="exchange-window__from-title">Sell: {{fromCurrency.name}}</h2>
                             <select class="exchange-window__from-currency-select" v-model="fromCurrency">
-                                <option v-for="currency in currencies" v-bind:value="currency">{{currency.name}}</option>
+                                <option v-for="currency in currencies" v-bind:value="currency" v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
-                            <input type="number" placeholder="to Sell" v-model="amount">
-                            
+                            <input type="number" placeholder="Currency to sell" v-model="amount">
+                            <small class="exchange-window__error" v-if="smallerr.active">{{smallerr.message}}</small>
                         </div>
 
                         <img class = "exchange-window__img" src="../assets/img/sync64.png" alt="<- exchange ->">
@@ -20,16 +20,16 @@
 
                             <h2 class="exchange-window__to-title">Buy: {{toCurrency.name}}</h2>
                             <select class="exchange-window__to-currency-select" v-model="toCurrency">
-                                <option v-for="currency in currencies" v-bind:value="currency">{{currency.name}}</option>
+                                <option v-for="currency in currencies" v-bind:value="currency"  v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
-                            <input type="number" readonly placeholder="to Buy" v-model="onInput">
-
+                            <input type="number" readonly placeholder="Currency to buy" v-model="onInput">
+                    
                         </div>
                     </div>
                 </div>
 
-                <div class="exchange-window__button">
-                    <button  v-bind:disabled="isButtonDisabled">Exchange</button>
+                <div class="exchange-window__button" v-bind:class="{button__inactive: button.disabled}">
+                    <button  v-bind:disabled="button.disabled">{{button.message}}</button>
                 </div>
 
                 <div class="exchange-window__currency">
@@ -54,8 +54,19 @@
 export default {
     data() {
         return {
-            amount: 0,
-            isButtonDisabled: true,
+            amount: '',
+            
+            button: {
+                disabled: true,
+                message: "Input value"
+            },
+
+            smallerr: {
+                active: false,
+                message: '',
+            },
+            
+
             currencies: {
                 UAH : {
                     name: 'UAH',
@@ -118,15 +129,20 @@ export default {
 
     methods: {
         disableButton: function () {
-            this.isButtonDisabled = true;
+            this.button.disabled = true;
+            this.button.message = "Input value";
+            console.log(this.button.disabled);
             console.log("button disabled");
         },
 
         enableButton: function () {
-            this.isButtonDisabled = false;
+            this.button.disabled = false;
+            this.button.message = "Exchange";
+            console.log(this.button.disabled);
             console.log("button enabled");
         },
 
+        
         toUsd: function () {
             if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "EUR") {
                 return (this.amount / (this.fromCurrency).toUsd).toFixed(2);
@@ -171,19 +187,27 @@ export default {
                 return (this.amount * (this.fromCurrency).toEth).toFixed(2);
             }
         },
-       
     },
 
     computed: {
-
+        
         validteInput: function () {
-            if (this.amount <= 0) {
+            if (this.amount === '' || this.amount == 0) {
+                this.smallerr.message = '';
+                this.smallerr.active = false;
+                console.log(this.smallerr.message);
+                return false;
+            }
+            else if (this.amount < 0 || isNaN(this.amount)) {
+                this.smallerr.message = "Invalid value of currency.";
+                this.smallerr.active = true;
+                console.log(this.smallerr.message);
                 return false;
             } else {
                 return true;
             }
         },
-
+       
         onInput: function () {
             if(this.validteInput) {
                 console.log("VALID INPUT");
@@ -194,11 +218,14 @@ export default {
                 console.log("INVALID INPUT");
             }
         },
-
+        
         exchanger: function () {
             if (this.toCurrency.name === this.fromCurrency.name) {
                 this.disableButton();
-                return this.amount * 1;
+                this.smallerr.message = "Cannot exchange equalent currencies.";
+                this.smallerr.active = true;
+                console.log(this.smallerr.message);
+                return this.amount;
             }
             if (this.toCurrency.name === "USD") {
                 return this.toUsd();
@@ -213,14 +240,12 @@ export default {
                 return this.toEth();
             }
             if (this.toCurrency.name === "UAH") {
-                return this.toUah();
+               return  this.toUah();
             }
         }
     }
 }
 </script>
-
-
 
 <style>
     input::-webkit-outer-spin-button,
@@ -229,6 +254,13 @@ export default {
         margin: 0;
     }
     
+    .exchange-window__from-inputs,
+    .exchange-window__to-inputs,
+    .blocked__inputs, .button__inactive button,
+    .exchange-window__button button {
+        transition: 0.1s;
+    }
+
     .wrapper {
         border: 1px solid white;
         min-width: 100%;
@@ -276,6 +308,15 @@ export default {
         border: 10px double #eddc67;
         padding: 15px 10px 15px 10px;
         margin: 10px;
+        transition: 0.1s;
+    }
+
+    .exchange-window__to-inputs {
+        height: fit-content;
+    }
+
+    .blocked__inputs {
+        border: 10px double red;
     }
             
     .exchange-window__from-inputs h2,
@@ -286,8 +327,9 @@ export default {
 
     .exchange-window__from-currency-select,
     .exchange-window__to-currency-select {
-        font-size: 20px;
-        height: 33px;
+        font-size: 25px;
+        height: 43px;
+
     }
 
     .exchange-window__from-inputs input,
@@ -296,6 +338,7 @@ export default {
         min-width: 100px;
         font-size: 25px;
         margin: 5px 10px 5px 10px;
+        padding: 8px;
     }
 
 
@@ -308,7 +351,7 @@ export default {
     .exchange-window__button button {
         font-size: 30px;
         padding: 10px;
-        margin: 10px;
+        margin: 20px;
         background-color: mediumseagreen;
         color: white;
         text-shadow: 1px 2px 2px black;
@@ -321,7 +364,11 @@ export default {
         box-shadow: 2px 4px 4px mediumseagreen;
     }
 
-     .exchange-window__currency {
+    .button__inactive button{
+        background-color: dimgray;
+    }
+
+    .exchange-window__currency {
         grid-column: 1;
     }
 
@@ -352,6 +399,13 @@ export default {
         height: auto;
         max-width: 100%;
         margin: 10px;
+    }
+
+    .exchange-window__error {
+        display: block;
+        color: red;
+        font-size: 15px;
+        padding: 10px 0 0 0;
     }
 
     @media screen and (max-width:1526px) and (min-width:1025px){

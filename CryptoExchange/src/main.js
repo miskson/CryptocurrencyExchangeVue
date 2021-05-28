@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import Header from './components/Header'
 import Content from './components/ExchangeWindow'
+import store from './store/index'
 
 Vue.config.productionTip = false
 
@@ -13,5 +14,6 @@ Vue.component('Content', Content)
 new Vue({
   el: '#app',
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  store,
 })
