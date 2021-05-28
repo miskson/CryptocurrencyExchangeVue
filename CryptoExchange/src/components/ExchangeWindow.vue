@@ -10,20 +10,20 @@
                             <select class="exchange-window__from-currency-select" v-model="fromCurrency">
                                 <option v-for="currency in currencies" v-bind:value="currency" v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
+                            <!--@input="onInput"-->
                             <input type="number" placeholder="Currency to sell" v-model="amount">
                             <small class="exchange-window__error" v-if="smallerr.active">{{smallerr.message}}</small>
                         </div>
-
                         <img class = "exchange-window__img" src="../assets/img/sync64.png" alt="<- exchange ->">
 
-                        <div class="exchange-window__to-inputs">
+                        <div class="exchange-window__to-inputs" v-bind:class="{blocked__inputs: smallerr.active2}">
 
                             <h2 class="exchange-window__to-title">Buy: {{toCurrency.name}}</h2>
-                            <select class="exchange-window__to-currency-select" v-model="toCurrency">
+                            <select class="exchange-window__to-currency-select" v-model="toCurrency" @change="onChange">
                                 <option v-for="currency in currencies" v-bind:value="currency"  v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
                             <input type="number" readonly placeholder="Currency to buy" v-model="onInput">
-                    
+                            <small class="exchange-window__error" v-if="smallerr.active2">{{smallerr.message}}</small>
                         </div>
                     </div>
                 </div>
@@ -34,15 +34,12 @@
 
                 <div class="exchange-window__currency">
                     <h3>Currency:</h3>
-                    <p>1BTC = 2 378 UAH</p>
-                    <p>1ETH = 587 EUR</p>
-                    <p>1EUR = 34 UAH</p>
+                    <p>1{{toCurrency.name}} = {{fromCurrency[opname]}}{{fromCurrency.name}}</p>
+                    
                 </div>
                 <div class="exchange-window__reserve">
                     <h3>Reserve:</h3>
-                    <p>4 BTC</p>
-                    <p>30 000 UAH</p>
-                    <p>18 ETH</p>
+                    <p>{{toCurrency.reserve}} {{toCurrency.name}}</p>
                 </div>
             </div>
         </div>
@@ -55,7 +52,7 @@ export default {
     data() {
         return {
             amount: '',
-            
+            exchanged: '',
             button: {
                 disabled: true,
                 message: "Input value"
@@ -63,67 +60,83 @@ export default {
 
             smallerr: {
                 active: false,
+                active2:false,
                 message: '',
             },
             
-
             currencies: {
                 UAH : {
                     name: 'UAH',
+                    toUah: 1,
                     toUsd: 27.46,
                     toEur: 34,
                     toEth: 71518.75,
-                    toBtc: 1072776.08
+                    toBtc: 1072776.08,
+                    reserve: 30000
                 },
 
                 USD: {
                     name: 'USD',
+                    toUsd: 1,
                     toEur: 1.22,
                     toUah: 0.03641,
                     toEth: 2607.04,
-                    toBtc: 39070.94
+                    toBtc: 39070.94,
+                    reserve: 40000
                 },
 
                 EUR: {
                     name: 'EUR',
+                    toEur: 1,
                     toUsd: 0.82,
                     toUah: 0.03,
                     toEth: 2101.09,
-                    toBtc: 31478.89
+                    toBtc: 31478.89,
+                    reserve: 30000
                 },
 
                 ETH: {
                     name: 'ETH',
+                    toEth: 1,
                     toUsd: 2566.83,
                     toEur: 2101.09,
                     toUah: 71518.75,
-                    toBtc: 0.07
+                    toBtc: 0.07,
+                    reserve: 18
                 },
 
                 BTC: {
                     name: 'BTC',
+                    toBtc: 1,
                     toUsd: 38456.7,
                     toEur: 31478.89,
                     toUah: 1055910.82,
                     toEth: 14.98,
+                    reserve: 4
                 }
             },
 
             fromCurrency: {
                 name: 'UAH',
+                toUah: 1,
                 toUsd: 27.46,
                 toEur: 34,
                 toEth: 71518.75,
-                toBtc: 1072776.08
+                toBtc: 1072776.08,
+                reserve: 30000
             },
 
             toCurrency: {
                 name: 'USD',
+                toUsd: 1,
                 toEur: 1.22,
                 toUah: 0.03641,
                 toEth: 2607.04,
-                toBtc: 39070.94
+                toBtc: 39070.94,
+                reserve: 40000
             },
+
+            opname: "toUsd",
         }
     },
 
@@ -131,18 +144,33 @@ export default {
         disableButton: function () {
             this.button.disabled = true;
             this.button.message = "Input value";
-            console.log(this.button.disabled);
             console.log("button disabled");
         },
 
         enableButton: function () {
             this.button.disabled = false;
             this.button.message = "Exchange";
-            console.log(this.button.disabled);
             console.log("button enabled");
         },
 
-        
+        onChange: function () {
+            if (this.toCurrency.name === "USD") {
+                this.opname = 'toUsd';
+            }
+            if (this.toCurrency.name === "EUR") {
+                this.opname = 'toEur';
+            }
+            if (this.toCurrency.name === "BTC") {
+                this.opname = 'toBtc';
+            }
+            if (this.toCurrency.name === "ETH") {
+                this.opname = 'toEth';
+            }
+            if (this.toCurrency.name === "UAH") {
+                this.opname = 'toUah';
+            }
+        },
+
         toUsd: function () {
             if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "EUR") {
                 return (this.amount / (this.fromCurrency).toUsd).toFixed(2);
@@ -189,33 +217,42 @@ export default {
         },
     },
 
+    watch: {
+        exchanged:function (newExchanged, oldExchanged) {
+            if (this.exchanged > this.toCurrency.reserve) {
+                this.disableButton();
+                this.smallerr.active2 = true;
+                this.smallerr.message = "Exchanged amount is more than reserve contains."
+            } else {
+                this.smallerr.active2 = false;
+            }
+        },
+    },
+
     computed: {
-        
-        validteInput: function () {
+        validateInput: function () {
             if (this.amount === '' || this.amount == 0) {
                 this.smallerr.message = '';
                 this.smallerr.active = false;
-                console.log(this.smallerr.message);
+                this.exchanged = '';
                 return false;
             }
             else if (this.amount < 0 || isNaN(this.amount)) {
                 this.smallerr.message = "Invalid value of currency.";
                 this.smallerr.active = true;
-                console.log(this.smallerr.message);
                 return false;
             } else {
                 return true;
             }
         },
-       
+
         onInput: function () {
-            if(this.validteInput) {
-                console.log("VALID INPUT");
+            if(this.validateInput) {
                 this.enableButton();
-                return this.exchanger;
+                this.exchanged = this.exchanger;
+                return this.exchanged;
             } else {
                 this.disableButton();
-                console.log("INVALID INPUT");
             }
         },
         
@@ -224,23 +261,10 @@ export default {
                 this.disableButton();
                 this.smallerr.message = "Cannot exchange equalent currencies.";
                 this.smallerr.active = true;
-                console.log(this.smallerr.message);
                 return this.amount;
-            }
-            if (this.toCurrency.name === "USD") {
-                return this.toUsd();
-            }
-            if (this.toCurrency.name === "EUR") {
-                return this.toEur();
-            }
-            if (this.toCurrency.name === "BTC") {
-                return this.toBtc();
-            }
-            if (this.toCurrency.name === "ETH") {
-                return this.toEth();
-            }
-            if (this.toCurrency.name === "UAH") {
-               return  this.toUah();
+            } else {
+                this.smallerr.active = false;
+                return this[this.opname]();
             }
         }
     }
@@ -309,9 +333,6 @@ export default {
         padding: 15px 10px 15px 10px;
         margin: 10px;
         transition: 0.1s;
-    }
-
-    .exchange-window__to-inputs {
         height: fit-content;
     }
 
@@ -379,8 +400,9 @@ export default {
     .exchange-window__currency, .exchange-window__reserve {
         border: 3px solid #1f212b;
         padding: 5px;
+        height: fit-content;
         text-align: center;
-        font-size: 30px;
+        font-size: 25px;
         grid-row: 4;
     }
 
