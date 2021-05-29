@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="exchange-window__button" v-bind:class="{button__inactive: button.disabled}">
-                    <button  v-bind:disabled="button.disabled">{{button.message}}</button>
+                    <button  v-bind:disabled="button.disabled" @click="onSubmit">{{button.message}}</button>
                 </div>
 
                 <div class="exchange-window__currency">
@@ -56,11 +56,17 @@ export default {
             smallerr: {
                 active: false,
                 active2:false,
-                message: '',
+                message: ''
             },
             fromCurrency: this.$store.state.currencies.UAH, 
             toCurrency: this.$store.state.currencies.USD,
             opname: "toUsd",
+            exchangedResults: {
+                fromAmount: 0,
+                fromCurrency: '',
+                toAmoutnt: 0,
+                toCurrency: ''
+            },
         }
     },
 
@@ -68,7 +74,6 @@ export default {
         disableButton: function () {
             this.button.disabled = true;
             this.button.message = "Input value";
-            console.log(this.$store.state.currencies.UAH);
             console.log("button disabled");
         },
 
@@ -102,8 +107,18 @@ export default {
             } else {
                 return (this.amount / (this.fromCurrency[this.opname]));
             }
-        }
+        },
 
+        onSubmit: function () {
+            this.$store.commit('writeLastTransaction', {
+                amount: Number(this.amount),
+                exchanged: Number(this.exchanged),
+                fromCurrency: this.fromCurrency.name,
+                toCurrency: this.toCurrency.name
+            });
+            
+            console.log(this.$store.state.lastTransactionInfo, typeof(this.$store.state.lastTransactionInfo));
+        },
     },
 
     watch: {
@@ -153,7 +168,6 @@ export default {
                 return this.amount;
             } else {
                 this.smallerr.active = false;
-                //return this[this.opname]();
                 return this.convert();
             }
         }

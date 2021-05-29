@@ -5,8 +5,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        amount: 0,
-        exchanged: 0,
+        lastTransactionInfo: {
+            currencySold: 0,
+            currencyBought: 0,
+            exchangedFrom:'',
+            exchangedTo: ''
+        },
+        
         currencies: {
                 UAH : {
                     name: 'UAH',
@@ -61,7 +66,12 @@ export default new Vuex.Store({
     },
     
     mutations: {
-       
-    }
-    
+        writeLastTransaction(state, transactionInfo) {
+            state.lastTransactionInfo.currencySold = transactionInfo.amount;
+            state.lastTransactionInfo.currencyBought = transactionInfo.exchanged;
+            state.lastTransactionInfo.exchangedFrom = transactionInfo.fromCurrency;
+            state.lastTransactionInfo.exchangedTo = transactionInfo.toCurrency;
+        }
+    },
 })
+
