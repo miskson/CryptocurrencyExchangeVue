@@ -5,22 +5,20 @@
                 <div class="exchange-window__inputs">
                     <div class="exchange-window__inputs-wrapper">
                         <div class="exchange-window__from-inputs" v-bind:class="{blocked__inputs: smallerr.active}">
-
                             <h2 class="exchange-window__from-title">Sell: {{fromCurrency.name}}</h2>
                             <select class="exchange-window__from-currency-select" v-model="fromCurrency">
-                                <option v-for="currency in currencies" v-bind:value="currency" v-bind:key="currency.name">{{currency.name}}</option>
+                                <option v-for="currency in this.$store.state.currencies" v-bind:value="currency" v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
-                            <!--@input="onInput"-->
                             <input type="number" placeholder="Currency to sell" v-model="amount">
                             <small class="exchange-window__error" v-if="smallerr.active">{{smallerr.message}}</small>
                         </div>
+
                         <img class = "exchange-window__img" src="../assets/img/sync64.png" alt="<- exchange ->">
 
                         <div class="exchange-window__to-inputs" v-bind:class="{blocked__inputs: smallerr.active2}">
-
                             <h2 class="exchange-window__to-title">Buy: {{toCurrency.name}}</h2>
                             <select class="exchange-window__to-currency-select" v-model="toCurrency" @change="onChange">
-                                <option v-for="currency in currencies" v-bind:value="currency"  v-bind:key="currency.name">{{currency.name}}</option>
+                                <option v-for="currency in this.$store.state.currencies" v-bind:value="currency"  v-bind:key="currency.name">{{currency.name}}</option>
                             </select>
                             <input type="number" readonly placeholder="Currency to buy" v-model="onInput">
                             <small class="exchange-window__error" v-if="smallerr.active2">{{smallerr.message}}</small>
@@ -43,9 +41,7 @@
                 </div>
             </div>
         </div>
-
 </template>
-
 
 <script>
 export default {
@@ -57,85 +53,13 @@ export default {
                 disabled: true,
                 message: "Input value"
             },
-
             smallerr: {
                 active: false,
                 active2:false,
                 message: '',
             },
-            
-            currencies: {
-                UAH : {
-                    name: 'UAH',
-                    toUah: 1,
-                    toUsd: 27.46,
-                    toEur: 34,
-                    toEth: 71518.75,
-                    toBtc: 1072776.08,
-                    reserve: 30000
-                },
-
-                USD: {
-                    name: 'USD',
-                    toUsd: 1,
-                    toEur: 1.22,
-                    toUah: 0.03641,
-                    toEth: 2607.04,
-                    toBtc: 39070.94,
-                    reserve: 40000
-                },
-
-                EUR: {
-                    name: 'EUR',
-                    toEur: 1,
-                    toUsd: 0.82,
-                    toUah: 0.03,
-                    toEth: 2101.09,
-                    toBtc: 31478.89,
-                    reserve: 30000
-                },
-
-                ETH: {
-                    name: 'ETH',
-                    toEth: 1,
-                    toUsd: 2566.83,
-                    toEur: 2101.09,
-                    toUah: 71518.75,
-                    toBtc: 0.07,
-                    reserve: 18
-                },
-
-                BTC: {
-                    name: 'BTC',
-                    toBtc: 1,
-                    toUsd: 38456.7,
-                    toEur: 31478.89,
-                    toUah: 1055910.82,
-                    toEth: 14.98,
-                    reserve: 4
-                }
-            },
-
-            fromCurrency: {
-                name: 'UAH',
-                toUah: 1,
-                toUsd: 27.46,
-                toEur: 34,
-                toEth: 71518.75,
-                toBtc: 1072776.08,
-                reserve: 30000
-            },
-
-            toCurrency: {
-                name: 'USD',
-                toUsd: 1,
-                toEur: 1.22,
-                toUah: 0.03641,
-                toEth: 2607.04,
-                toBtc: 39070.94,
-                reserve: 40000
-            },
-
+            fromCurrency: this.$store.state.currencies.UAH, 
+            toCurrency: this.$store.state.currencies.USD,
             opname: "toUsd",
         }
     },
@@ -144,6 +68,7 @@ export default {
         disableButton: function () {
             this.button.disabled = true;
             this.button.message = "Input value";
+            console.log(this.$store.state.currencies.UAH);
             console.log("button disabled");
         },
 
@@ -171,50 +96,14 @@ export default {
             }
         },
 
-        toUsd: function () {
-            if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "EUR") {
-                return (this.amount / (this.fromCurrency).toUsd).toFixed(2);
+        convert: function () {
+            if (this.toCurrency.name === "UAH" || this.toCurrency.name === "EUR" || this.toCurrency.name === "USD") {
+                return (this.amount / (this.fromCurrency[this.opname])).toFixed(2);
+            } else {
+                return (this.amount / (this.fromCurrency[this.opname]));
             }
-            if (this.fromCurrency.name === "ETH" || this.fromCurrency.name === "BTC") {
-                return (this.amount * (this.fromCurrency).toUsd).toFixed(2);
-            }
-        },
+        }
 
-        toEur: function () {
-            if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "USD") {
-                return (this.amount / (this.fromCurrency).toEur).toFixed(2);
-            }
-            if (this.fromCurrency.name === "ETH" || this.fromCurrency.name === "BTC") {
-                return (this.amount * (this.fromCurrency).toEur).toFixed(2);
-            }
-        },
-
-        toUah: function () {
-            if (this.fromCurrency.name === "USD" || this.fromCurrency.name === "EUR") {
-                return (this.amount / (this.fromCurrency).toUah).toFixed(2);
-            }
-            if (this.fromCurrency.name === "BTC" || this.fromCurrency.name === "ETH") {
-                return (this.amount * (this.fromCurrency).toUah).toFixed(2);
-            }
-        },
-        
-        toBtc: function () {
-            if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "USD" || this.fromCurrency.name === "EUR") {
-                return (this.amount / (this.fromCurrency).toBtc);
-            }
-            if (this.fromCurrency.name === "ETH") {
-                return (this.amount * (this.fromCurrency).toBtc).toFixed(2);
-            }
-        },
-        
-        toEth: function () {
-            if (this.fromCurrency.name === "UAH" || this.fromCurrency.name === "USD" || this.fromCurrency.name === "EUR") {
-                return (this.amount / (this.fromCurrency).toEth);
-            }
-            if (this.fromCurrency.name === "BTC") {
-                return (this.amount * (this.fromCurrency).toEth).toFixed(2);
-            }
-        },
     },
 
     watch: {
@@ -264,7 +153,8 @@ export default {
                 return this.amount;
             } else {
                 this.smallerr.active = false;
-                return this[this.opname]();
+                //return this[this.opname]();
+                return this.convert();
             }
         }
     }
