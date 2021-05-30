@@ -33,7 +33,7 @@
     }
 </script>
 
-<style>
+<style scoped>
     .message-window {
         min-height: 100%;
         padding: 1em;
@@ -101,7 +101,7 @@
      
     @media screen and (max-width: 400px) and (min-width: 0px) {
         body {
-            background-color:  transparent;
+            background-color: #1f212b;;
         }
 
         .site-header__title {
@@ -114,6 +114,7 @@
         .message-window {
             border: none;
             background-color: #1f212b;
+            font-size: 5px;
             margin: 0 auto;
         }
 
