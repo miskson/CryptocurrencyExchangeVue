@@ -33,7 +33,6 @@
                 <div class="exchange-window__currency">
                     <h3>Currency:</h3>
                     <p>1{{toCurrency.name}} = {{fromCurrency[opname]}}{{fromCurrency.name}}</p>
-                    
                 </div>
                 <div class="exchange-window__reserve">
                     <h3>Reserve:</h3>
@@ -74,13 +73,11 @@ export default {
         disableButton: function () {
             this.button.disabled = true;
             this.button.message = "Input value";
-            console.log("button disabled");
         },
 
         enableButton: function () {
             this.button.disabled = false;
             this.button.message = "Exchange";
-            console.log("button enabled");
         },
 
         onChange: function () {
@@ -116,8 +113,7 @@ export default {
                 fromCurrency: this.fromCurrency.name,
                 toCurrency: this.toCurrency.name
             });
-            
-            console.log(this.$store.state.lastTransactionInfo, typeof(this.$store.state.lastTransactionInfo));
+            this.$router.push('/successWindow');
         },
     },
 
@@ -168,7 +164,13 @@ export default {
                 return this.amount;
             } else {
                 this.smallerr.active = false;
-                return this.convert();
+                if(this.convert() <= 0) {
+                    this.disableButton();
+                    this.smallerr.message = "Cannot convert, to little value given."
+                    this.smallerr.active = true;
+                } else {
+                    return this.convert();
+                }
             }
         }
     }

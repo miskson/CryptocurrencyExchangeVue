@@ -5,11 +5,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        transactionId: '',
+
         lastTransactionInfo: {
             currencySold: 0,
             currencyBought: 0,
             exchangedFrom:'',
-            exchangedTo: ''
+            exchangedTo: '',
         },
         
         currencies: {
@@ -71,6 +73,10 @@ export default new Vuex.Store({
             state.lastTransactionInfo.currencyBought = transactionInfo.exchanged;
             state.lastTransactionInfo.exchangedFrom = transactionInfo.fromCurrency;
             state.lastTransactionInfo.exchangedTo = transactionInfo.toCurrency;
+        },
+
+        generateId(state) {
+            state.transactionId = (crypto.getRandomValues(new Uint32Array(1)))[0];
         }
     },
 })

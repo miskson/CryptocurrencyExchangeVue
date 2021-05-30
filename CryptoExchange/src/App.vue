@@ -1,7 +1,7 @@
 <template>
   <div id="app">    
       <Header></Header>
-      <Content></Content>
+      <router-view></router-view>
   </div>
 </template>
 
@@ -10,8 +10,21 @@
 
 export default {
   name: 'App',
-  components: {
+  
+  mounted: function () {
+    this.generateId();
+  },
 
+  created: function () {
+    if (this.$route.path != '/cryptoExchangeMain') {
+      this.$router.push('/cryptoExchangeMain');
+    }
+  },
+
+  methods: {
+    generateId: function () {
+      this.$store.commit('generateId');
+    }
   }
 }
 </script>

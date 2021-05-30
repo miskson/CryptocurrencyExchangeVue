@@ -2,7 +2,7 @@
     <!-- add functionality here-->
     <header class="site-header"> 
         <h1 class="site-header__title">Crypto<span>Exchange</span></h1>
-        <span class="site-header__Id">Check ID: <span>id</span></span>
+        <span class="site-header__Id">Check ID: {{this.$store.state.transactionId}}</span>
     </header>
 </template>
 
