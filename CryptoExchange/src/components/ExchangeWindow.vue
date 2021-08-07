@@ -69,6 +69,20 @@ export default {
         }
     },
 
+    async created() {
+        try {
+            let today = new Date()
+            let dd = String(today.getDate()).padStart(2, '0')
+            let mm = String(today.getMonth() + 1).padStart(2, '0')
+            let yyyy = today.getFullYear()
+            today = dd +'.' + mm + '.' + yyyy
+            const respond = await fetch('https://cors-anywhere.herokuapp.com/https://api.privatbank.ua/p24api/exchange_rates?json&date=' + today)
+            const currencies = await respond.json()
+        } catch(e) {
+            console.error('error', e)
+        }
+    },
+
     methods: {
         disableButton: function () {
             this.button.disabled = true;
